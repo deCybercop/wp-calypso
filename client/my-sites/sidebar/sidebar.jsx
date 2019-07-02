@@ -14,7 +14,6 @@ import { memoize } from 'lodash';
  * Internal dependencies
  */
 import { isEnabled } from 'config';
-import Button from 'components/button';
 import CurrentSite from 'my-sites/current-site';
 import ExpandableSidebarMenu from 'layout/sidebar/expandable';
 import ExternalLink from 'components/external-link';
@@ -576,14 +575,12 @@ export class MySitesSidebar extends Component {
 
 		/* eslint-disable wpcalypso/jsx-classname-namespace */
 		return (
-			<Button
-				borderless
-				className="my-sites-sidebar__add-new-site"
-				href={ this.getAddNewSiteUrl() }
-				onClick={ this.focusContent }
-			>
-				<Gridicon icon="add-outline" /> { this.props.translate( 'Add New Site' ) }
-			</Button>
+			<SidebarItem
+				label={ this.props.translate( 'Add new site' ) }
+				link={ this.getAddNewSiteUrl() }
+				onNavigate={ this.focusContent }
+				icon="add-outline"
+			/>
 		);
 		/* eslint-enable wpcalypso/jsx-classname-namespace */
 	}
