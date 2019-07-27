@@ -318,7 +318,7 @@
 		"npm-merge-driver": "2.3.5",
 		"prettier": "https://github.com/Automattic/wp-prettier/releases/download/wp-1.17.0/wp-prettier-1.17.0.tgz",
 		"react-test-renderer": "16.8.6",
-		"readline-sync": "1.4.9",
+		"readline-sync": "1.4.10",
 		"replace": "1.1.0",
 		"rimraf": "2.6.3",
 		"sinon": "7.3.2",
