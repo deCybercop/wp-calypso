@@ -58,7 +58,8 @@ function removeUnneededSteps( state, { flowName } ) {
 	flowSteps = get( flows, [ flowName, 'steps' ], [] );
 
 	if ( user && user.get() ) {
-		flowSteps = flowSteps.filter( item => item !== 'user' );
+		// item !== 'create-account' temp condition for createAccountUserStep AB test
+		flowSteps = flowSteps.filter( item => item !== 'user' || item !== 'create-account' );
 	}
 
 	return state.filter( step => flowSteps.includes( step.stepName ) );

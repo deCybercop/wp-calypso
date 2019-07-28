@@ -515,6 +515,9 @@ export function generateSteps( {
 			providesToken: true,
 			providesDependencies: [ 'bearer_token', 'email', 'username' ],
 			unstorableDependencies: [ 'bearer_token' ],
+			props: {
+				isSocialSignupEnabled: config.isEnabled( 'signup/social' ),
+			},
 		},
 	};
 }
