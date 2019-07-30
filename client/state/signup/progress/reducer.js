@@ -24,6 +24,7 @@ import {
 import { createReducer } from 'state/utils';
 import { schema } from './schema';
 import userFactory from 'lib/user';
+import { abtest } from 'lib/abtest';
 
 const debug = debugFactory( 'calypso:state:signup:progress:reducer' );
 
@@ -88,7 +89,10 @@ function submitStep( state, { step } ) {
 
 		We are testing whether a passwordless account creation and login improves signup rate in the `onboarding` flow
 	*/
-	if ( get( step, 'isPasswordlessSignupForm', false ) ) {
+	if (
+		'passwordless' === abtest( 'passwordlessSignup' ) &&
+		get( step, 'isPasswordlessSignupForm' )
+	) {
 		status = 'completed';
 	}
 
