@@ -40,10 +40,9 @@ import JetpackComPricingPage from '../lib/pages/external/jetpackcom-pricing-page
 import SecurePaymentComponent from '../lib/components/secure-payment-component';
 import WPHomePage from '../lib/pages/wp-home-page';
 import CheckOutThankyouPage from '../lib/pages/signup/checkout-thankyou-page';
-// These flows are disabled via `jetpack/connect/site-questions` feature flag in Calypso:
-// import JetpackConnectSiteTypePage from '../lib/pages/jetpack/jetpack-connect-site-type-page';
-// import JetpackConnectSiteTopicPage from '../lib/pages/jetpack/jetpack-connect-site-topic-page';
-// import JetpackConnectUserTypePage from '../lib/pages/jetpack/jetpack-connect-user-type-page';
+import JetpackConnectSiteTypePage from '../lib/pages/jetpack/jetpack-connect-site-type-page';
+import JetpackConnectSiteTopicPage from '../lib/pages/jetpack/jetpack-connect-site-topic-page';
+import JetpackConnectUserTypePage from '../lib/pages/jetpack/jetpack-connect-user-type-page';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );
@@ -109,23 +108,23 @@ describe( `Jetpack Connect: (${ screenSize })`, function() {
 			return await jetpackAuthorizePage.waitToDisappear();
 		} );
 
-		/* These flows are disabled via `jetpack/connect/site-questions` feature flag in Calypso */
-		/*
-		step( 'Can select a site type', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a site type', async function() {
 			const siteTypePage = await JetpackConnectSiteTypePage.Expect( driver );
 			return await siteTypePage.selectSiteType( 'blog' );
 		} );
 
-		step( 'Can select a site topic', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a site topic', async function() {
 			const siteTopicPage = await JetpackConnectSiteTopicPage.Expect( driver );
 			return await siteTopicPage.selectSiteTopic( 'test site' );
 		} );
 
-		step( 'Can select a user type', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a user type', async function() {
 			const userTypePage = await JetpackConnectUserTypePage.Expect( driver );
 			return await userTypePage.selectUserType( 'creator' );
 		} );
-		*/
 
 		step( 'Can click the free plan button', async function() {
 			const pickAPlanPage = await PickAPlanPage.Expect( driver );
@@ -176,23 +175,23 @@ describe( `Jetpack Connect: (${ screenSize })`, function() {
 			return await jetpackAuthorizePage.approveConnection();
 		} );
 
-		/* These flows are disabled via `jetpack/connect/site-questions` feature flag in Calypso */
-		/*
-		step( 'Can select a site type', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a site type', async function() {
 			const siteTypePage = await JetpackConnectSiteTypePage.Expect( driver );
 			return await siteTypePage.selectSiteType( 'blog' );
 		} );
 
-		step( 'Can select a site topic', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a site topic', async function() {
 			const siteTopicPage = await JetpackConnectSiteTopicPage.Expect( driver );
 			return await siteTopicPage.selectSiteTopic( 'test site' );
 		} );
 
-		step( 'Can select a user type', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a user type', async function() {
 			const userTypePage = await JetpackConnectUserTypePage.Expect( driver );
 			return await userTypePage.selectUserType( 'creator' );
 		} );
-		*/
 
 		step( 'Can click the free plan button', async function() {
 			const pickAPlanPage = await PickAPlanPage.Expect( driver );
@@ -340,23 +339,23 @@ describe( `Jetpack Connect: (${ screenSize })`, function() {
 			return await jetpackAuthorizePage.waitToDisappear();
 		} );
 
-		/* These flows are disabled via `jetpack/connect/site-questions` feature flag in Calypso */
-		/*
-		step( 'Can select a site type', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a site type', async function() {
 			const siteTypePage = await JetpackConnectSiteTypePage.Expect( driver );
 			return await siteTypePage.selectSiteType( 'blog' );
 		} );
 
-		step( 'Can select a site topic', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a site topic', async function() {
 			const siteTopicPage = await JetpackConnectSiteTopicPage.Expect( driver );
 			return await siteTopicPage.selectSiteTopic( 'test site' );
 		} );
 
-		step( 'Can select a user type', async function() {
+		// This step is controlled by `jetpack/connect/site-questions` feature flag in Calypso
+		step.skip( 'Can select a user type', async function() {
 			const userTypePage = await JetpackConnectUserTypePage.Expect( driver );
 			return await userTypePage.selectUserType( 'creator' );
 		} );
-		*/
 
 		step(
 			'Can see the secure payment page and enter/submit test payment details',
