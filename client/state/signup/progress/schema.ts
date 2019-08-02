@@ -1,4 +1,3 @@
-/** @format */
 export const schema = {
 	type: 'array',
 	items: {
@@ -17,3 +16,15 @@ export const schema = {
 		},
 	},
 };
+
+export interface StepState {
+	formData: {
+		url: string;
+	};
+	lastUpdated: number;
+	providedDependencies?: string[];
+	status: 'completed' | 'processing' | 'pending' | 'in-progress' | 'invalid';
+	stepName: string;
+}
+
+export type ProgressState = StepState[];
