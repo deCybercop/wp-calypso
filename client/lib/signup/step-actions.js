@@ -656,13 +656,14 @@ export function isSiteTopicFulfilled( stepName, defaultDependencies, nextProps )
  * @param {function} callback The username to get suggestions for.
  * @param {object}   data     POST data object
  */
-export async function onboardPasswordlessUser( callback, { email } ) {
-	try {
-		const response = await wpcom.undocumented().usersEmailOnboard( { email }, null );
-		callback( null, { username: response.username, bearer_token: response.token.access_token } );
-	} catch ( err ) {
-		callback( err );
-	}
+export function onboardPasswordlessUser( callback, { email } ) {
+	wpcom
+		.undocumented()
+		.usersEmailOnboard( { email }, null )
+		.then( response =>
+			callback( null, { username: response.username, bearer_token: response.token.access_token } )
+		)
+		.catch( err => callback( err ) );
 }
 
 /**
