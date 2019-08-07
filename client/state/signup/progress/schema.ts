@@ -10,8 +10,10 @@ export const schema = {
 				},
 			},
 			lastUpdated: { type: 'number' },
-			// Valid status values: 'completed', 'processing', 'pending', 'in-progress' and 'invalid'
-			status: { type: 'string' },
+			status: {
+				type: 'string',
+				enum: [ 'completed', 'processing', 'pending', 'in-progress', 'invalid' ],
+			},
 			stepName: { type: 'string' },
 		},
 	},
