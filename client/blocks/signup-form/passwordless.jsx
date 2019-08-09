@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
 import emailValidator from 'email-validator';
@@ -84,7 +84,7 @@ export class PasswordlessSignupForm extends Component {
 			case 'already_taken':
 			case 'already_active':
 				return (
-					<Fragment>
+					<>
 						{ translate( 'An account with this email address already exists.' ) }
 						&nbsp;
 						{ translate( 'If this is you {{a}}log in now{{/a}}.', {
@@ -98,7 +98,7 @@ export class PasswordlessSignupForm extends Component {
 								),
 							},
 						} ) }
-					</Fragment>
+					</>
 				);
 			default:
 				return (

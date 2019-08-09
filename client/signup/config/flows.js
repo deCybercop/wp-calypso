@@ -98,7 +98,7 @@ const Flows = {
 	 *
 	 * The returned flow is modified according to several filters.
 	 *
-	 * @param {String}   flowName The name of the flow to return
+	 * @param   {String} flowName The name of the flow to return
 	 * @returns {Object} A flow object
 	 */
 	getFlow( flowName ) {
