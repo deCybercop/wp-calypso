@@ -152,4 +152,13 @@ export default {
 		defaultVariation: 'first',
 		allowExistingUsers: true,
 	},
+	signupEscapeHatch: {
+		datestamp: '20190809',
+		variations: {
+			variant: 50,
+			control: 50,
+		},
+		defaultVariation: 'control',
+		allowExistingUsers: true,
+	},
 };
