@@ -18,12 +18,19 @@ import { getSiteType } from 'state/signup/steps/site-type/selectors';
 import { submitSiteType } from 'state/signup/steps/site-type/actions';
 import { saveSignupStep } from 'state/signup/progress/actions';
 import { recordTracksEvent } from 'state/analytics/actions';
+import { getAllSiteTypes } from 'lib/signup/site-type';
 
 const siteTypeToFlowname = {
 	import: 'import-onboarding',
 	'blank-slate': 'blank-slate',
 	'online-store': 'ecommerce-onboarding',
 };
+
+const allowedSiteTypes = [ 1, 2, 3, 4 ];
+if ( 'variant' === abtest( 'signupEscapeHatch' ) ) {
+	allowedSiteTypes.push( 6 );
+}
+const siteTypeDefinitions = getAllSiteTypes( allowedSiteTypes );
 
 class SiteType extends Component {
 	componentDidMount() {
@@ -81,20 +88,6 @@ class SiteType extends Component {
 		);
 	}
 
-	renderBlankSlateButton() {
-		if ( 'variant' !== abtest( 'signupEscapeHatch' ) ) {
-			return null;
-		}
-
-		return (
-			<div className="site-type__blank-slate">
-				<Button borderless onClick={ this.handleBlankSlateClick }>
-					{ this.props.translate( 'Need a site in a hurry? Start one from scratch.' ) }
-				</Button>
-			</div>
-		);
-	}
-
 	renderStepContent() {
 		const { siteType } = this.props;
 
@@ -104,9 +97,9 @@ class SiteType extends Component {
 					goToNextStep={ this.props.goToNextStep }
 					submitForm={ this.submitStep }
 					siteType={ siteType }
+					siteTypeDefinitions={ siteTypeDefinitions }
 				/>
 				{ this.renderImportButton() }
-				{ this.renderBlankSlateButton() }
 			</Fragment>
 		);
 	}
