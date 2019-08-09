@@ -10,14 +10,15 @@ import {
 	noop,
 	get,
 	deburr,
+	find,
 	kebabCase,
 	pick,
 	head,
+	includes,
 	isEqual,
 	isEmpty,
 	camelCase,
 	identity,
-	includes,
 } from 'lodash';
 import { localize } from 'i18n-calypso';
 
@@ -30,6 +31,7 @@ import FormFieldset from 'components/forms/form-fieldset';
 import FormFooter from 'my-sites/domains/domain-management/components/form-footer';
 import FormButton from 'components/forms/form-button';
 import FormPhoneMediaInput from 'components/forms/form-phone-media-input';
+import FormLabel from 'components/forms/form-label';
 import { countries } from 'components/phone-input/data';
 import formState from 'lib/form-state';
 import analytics from 'lib/analytics';
@@ -37,6 +39,7 @@ import { tryToGuessPostalCodeFormat } from 'lib/postal-code';
 import { toIcannFormat } from 'components/phone-input/phone-number';
 import NoticeErrorMessage from 'my-sites/checkout/checkout/notice-error-message';
 import RegionAddressFieldsets from './custom-form-fieldsets/region-address-fieldsets';
+import LocationSearch from 'blocks/location-search';
 import notices from 'notices';
 import { CALYPSO_CONTACT } from 'lib/url/support';
 import getCountries from 'state/selectors/get-countries';
@@ -46,6 +49,7 @@ import {
 	CHECKOUT_UK_ADDRESS_FORMAT_COUNTRY_CODES,
 } from './custom-form-fieldsets/constants';
 import { getPostCodeLabelText } from './custom-form-fieldsets/utils';
+import { abtest } from 'lib/abtest';
 
 /**
  * Style dependencies
@@ -119,6 +123,7 @@ export class ContactDetailsFormFields extends Component {
 			phoneCountryCode: this.props.countryCode || this.props.userCountryCode,
 			form: null,
 			submissionCount: 0,
+			locationSelected: false,
 		};
 
 		this.inputRefs = {};
@@ -131,6 +136,7 @@ export class ContactDetailsFormFields extends Component {
 	// This is an attempt limit the redraws to only what we need.
 	shouldComponentUpdate( nextProps, nextState ) {
 		return (
+			nextState.locationSelected !== this.state.locationSelected ||
 			nextState.phoneCountryCode !== this.state.phoneCountryCode ||
 			! isEqual( nextState.form, this.state.form ) ||
 			! isEqual( nextProps.labelTexts, this.props.labelTexts ) ||
@@ -321,6 +327,63 @@ export class ContactDetailsFormFields extends Component {
 		} );
 	};
 
+	updateAddressField( addressComponents, componentTypes, fieldName, useShortName = false ) {
+		let newValue = '';
+		componentTypes.forEach( componentType => {
+			const addressComponent = find(
+				addressComponents,
+				this.findAddressComponent( componentType )
+			);
+			if ( addressComponent ) {
+				newValue += useShortName ? addressComponent.short_name : addressComponent.long_name;
+				newValue += ' ';
+			}
+		} );
+
+		this.formStateController.handleFieldChange( {
+			name: fieldName,
+			value: newValue.trim(),
+		} );
+	}
+
+	handleAddressPredictionClick = ( prediction, sessionToken ) => {
+		// eslint-disable-next-line no-undef
+		const placesService = new google.maps.places.PlacesService( document.createElement( 'div' ) );
+		placesService.getDetails(
+			{
+				placeId: prediction.place_id,
+				fields: [ 'address_component' ],
+				sessionToken,
+			},
+			( { address_components: addressComponents }, status ) => {
+				// eslint-disable-next-line no-undef
+				if ( status === google.maps.places.PlacesServiceStatus.OK ) {
+					this.updateAddressField( addressComponents, [ 'postal_code' ], 'postalCode' );
+					this.updateAddressField( addressComponents, [ 'country' ], 'countryCode', true );
+					this.updateAddressField( addressComponents, [ 'locality' ], 'city' );
+					this.updateAddressField(
+						addressComponents,
+						[ 'street_address', 'route', 'street_number' ],
+						'address1'
+					);
+					if ( this.props.hasCountryStates ) {
+						this.updateAddressField(
+							addressComponents,
+							[ 'administrative_area_level_1' ],
+							'state',
+							true
+						);
+					}
+
+					this.formStateController.sanitize();
+					this.formStateController.validate();
+				}
+
+				this.setState( { locationSelected: true } );
+			}
+		);
+	};
+
 	getFieldProps = ( name, needsChildRef = false ) => {
 		const ref = needsChildRef
 			? { inputRef: this.getRefCallback( name ) }
@@ -356,9 +419,64 @@ export class ContactDetailsFormFields extends Component {
 		return get( this.state.form, 'countryCode.value', '' );
 	}
 
+	findAddressComponent( type ) {
+		return addressComponent => {
+			return includes( get( addressComponent, 'types', [] ), type );
+		};
+	}
+
+	renderLocationSearch() {
+		return (
+			<div className="contact-details-form-fields__field location-search">
+				<FormLabel htmlFor="location-search">
+					{ this.props.translate( 'Address search' ) }
+				</FormLabel>
+				<LocationSearch
+					name="location-search"
+					card={ false }
+					types={ [ 'address' ] }
+					onSearch={ this.handleLocationSearch }
+					onPredictionClick={ this.handleAddressPredictionClick }
+					hidePredictionsOnClick={ true }
+				/>
+			</div>
+		);
+	}
+
+	handleLocationSearch = query => {
+		if ( query.length === 0 ) {
+			this.setState( { locationSelected: false } );
+			this.formStateController.handleFieldChange( {
+				name: 'postalCode',
+				value: '',
+			} );
+			this.formStateController.handleFieldChange( {
+				name: 'countryCode',
+				value: '',
+			} );
+			this.formStateController.handleFieldChange( {
+				name: 'city',
+				value: '',
+			} );
+			this.formStateController.handleFieldChange( {
+				name: 'address1',
+				value: '',
+			} );
+			this.formStateController.handleFieldChange( {
+				name: 'address2',
+				value: '',
+			} );
+			this.formStateController.handleFieldChange( {
+				name: 'state',
+				value: '',
+			} );
+		}
+	};
+
 	renderContactDetailsFields() {
 		const { translate, needsFax, hasCountryStates, labelTexts } = this.props;
 		const countryCode = this.getCountryCode();
+		const usePlacesApi = abtest( 'placesApiInCheckout' ) === 'placesApi';
 
 		return (
 			<div className="contact-details-form-fields__contact-details">
@@ -395,19 +513,24 @@ export class ContactDetailsFormFields extends Component {
 						} ) }
 				</div>
 
+				{ usePlacesApi && (
+					<div className="contact-details-form-fields__row">{ this.renderLocationSearch() }</div>
+				) }
+
 				<div className="contact-details-form-fields__row">
-					{ this.createField(
-						'country-code',
-						CountrySelect,
-						{
-							label: translate( 'Country' ),
-							countriesList: this.props.countriesList,
-						},
-						true
-					) }
+					{ ( ! usePlacesApi || this.state.locationSelected ) &&
+						this.createField(
+							'country-code',
+							CountrySelect,
+							{
+								label: translate( 'Country' ),
+								countriesList: this.props.countriesList,
+							},
+							true
+						) }
 				</div>
 
-				{ countryCode && (
+				{ ( ! usePlacesApi || this.state.locationSelected ) && countryCode && (
 					<RegionAddressFieldsets
 						getFieldProps={ this.getFieldProps }
 						countryCode={ countryCode }
