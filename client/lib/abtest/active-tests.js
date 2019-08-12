@@ -153,12 +153,13 @@ export default {
 		allowExistingUsers: true,
 	},
 	signupEscapeHatch: {
-		datestamp: '20190809',
+		datestamp: '20190812',
 		variations: {
 			variant: 50,
 			control: 50,
 		},
 		defaultVariation: 'control',
 		allowExistingUsers: true,
+		localeTargets: 'any',
 	},
 };
