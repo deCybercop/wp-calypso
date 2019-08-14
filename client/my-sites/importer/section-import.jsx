@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
-import { filter, flow, get, isEmpty, memoize, once } from 'lodash';
+import { filter, first, flow, get, includes, isEmpty, memoize, once } from 'lodash';
 
 /**
  * Internal dependencies
@@ -22,7 +22,8 @@ import BloggerImporter from 'my-sites/importer/importer-blogger';
 import WixImporter from 'my-sites/importer/importer-wix';
 import GoDaddyGoCentralImporter from 'my-sites/importer/importer-godaddy-gocentral';
 import SquarespaceImporter from 'my-sites/importer/importer-squarespace';
-import { fetchState, startImport } from 'lib/importer/actions';
+import { fetchState } from 'lib/importer/actions';
+import { autoStartSiteImport } from 'state/imports/site-importer/actions';
 import { getImporters, getImporterByKey } from 'lib/importer/importer-config';
 import { appStates } from 'state/imports/constants';
 
@@ -58,7 +59,7 @@ const importerComponents = {
 };
 
 const filterImportsForSite = ( siteID, imports ) => {
-	return filter( imports, importItem => importItem.site.ID === siteID );
+	return filter( imports, importItem => siteID && get( importItem, 'site.ID' ) === siteID );
 };
 
 const getImporterTypeForEngine = memoize( engine => `importer-type-${ engine }` );
@@ -71,7 +72,7 @@ class SectionImport extends Component {
 	state = getImporterState();
 
 	onceAutoStartImport = once( () => {
-		const { engine, site } = this.props;
+		const { engine, site, fromSite } = this.props;
 		const { importers: imports } = this.state;
 
 		if ( ! engine ) {
@@ -87,7 +88,23 @@ class SectionImport extends Component {
 			return;
 		}
 
-		startImport( site.ID, getImporterTypeForEngine( engine ) );
+		const importerType = getImporterTypeForEngine( engine );
+
+		this.props.autoStartSiteImport( {
+			importerStatus: {
+				site,
+				siteId: site.ID,
+				type: importerType,
+				importerState: appStates.UPLOAD_SUCCESS,
+			},
+			params: {
+				engine,
+				site_url: fromSite,
+			},
+			site,
+			importerType,
+			targetSiteUrl: fromSite,
+		} );
 	} );
 
 	componentDidMount() {
@@ -192,7 +209,7 @@ class SectionImport extends Component {
 	 *
 	 * @returns {Array} Importer react elements
 	 */
-	renderImporters() {
+	renderImportersMain() {
 		const {
 			api: { isHydrated },
 			importers: imports,
@@ -202,7 +219,27 @@ class SectionImport extends Component {
 		const siteTitle = title.length ? title : slug;
 
 		if ( engine && importerComponents[ engine ] ) {
-			return this.renderActiveImporters( filterImportsForSite( site.ID, imports ) );
+			const activeImports = filterImportsForSite( site.ID, imports );
+			const firstImport = first( activeImports );
+			const signupImportStarted =
+				firstImport &&
+				includes(
+					[ appStates.IMPORTING, appStates.IMPORT_SUCCESS, appStates.MAP_AUTHORS ],
+					firstImport.importerState
+				);
+
+			// If there's no active import started, mock one until we actually
+			// start importing to avoid showing the UI going through each stage.
+			if ( ! signupImportStarted ) {
+				return this.renderActiveImporters( [
+					{
+						importerState: appStates.FROM_SIGNUP,
+						type: getImporterTypeForEngine( engine ),
+						engine,
+						site,
+					},
+				] );
+			}
 		}
 
 		if ( ! isHydrated ) {
@@ -233,7 +270,7 @@ class SectionImport extends Component {
 		return (
 			<>
 				<Interval onTick={ this.updateFromAPI } period={ EVERY_FIVE_SECONDS } />
-				{ this.renderImporters() }
+				{ this.renderImportersMain() }
 			</>
 		);
 	}
@@ -283,12 +320,15 @@ class SectionImport extends Component {
 }
 
 export default flow(
-	connect( state => ( {
-		engine: getSelectedImportEngine( state ),
-		fromSite: getImporterSiteUrl( state ),
-		site: getSelectedSite( state ),
-		siteSlug: getSelectedSiteSlug( state ),
-		canImport: canCurrentUser( state, getSelectedSiteId( state ), 'manage_options' ),
-	} ) ),
+	connect(
+		state => ( {
+			engine: getSelectedImportEngine( state ),
+			fromSite: getImporterSiteUrl( state ),
+			site: getSelectedSite( state ),
+			siteSlug: getSelectedSiteSlug( state ),
+			canImport: canCurrentUser( state, getSelectedSiteId( state ), 'manage_options' ),
+		} ),
+		{ autoStartSiteImport }
+	),
 	localize
 )( SectionImport );
