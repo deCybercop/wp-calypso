@@ -26,7 +26,10 @@
 		"dev:starter-page-templates": "npm run starter-page-templates",
 		"build:starter-page-templates": "NODE_ENV=production npm run starter-page-templates",
 		"dev": "rimraf dist && npm-run-all --parallel dev:*",
-		"build": "rimraf dist && npm-run-all --parallel build:*"
+		"build": "rimraf dist && npm-run-all --parallel build:*",
+		"test:unit": "wp-scripts test-unit-js",
+		"test:unit:help": "wp-scripts test-unit-js --help",
+		"test:unit:watch": "wp-scripts test-unit-js --watch"
 	},
 	"dependencies": {
 		"@wordpress/api-fetch": "^3.1.2",
@@ -43,8 +46,10 @@
 		"@wordpress/keycodes": "^2.4.0",
 		"@wordpress/nux": "^3.4.0",
 		"@wordpress/plugins": "^2.2.0",
+		"@wordpress/scripts": "^3.4.0",
 		"@wordpress/url": "^2.5.0",
 		"classnames": "^2.2.6",
+		"enzyme": "^3.10.0",
 		"lodash": "^4.17.14"
 	}
 }
