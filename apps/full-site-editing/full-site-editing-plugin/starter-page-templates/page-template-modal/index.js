@@ -18,10 +18,13 @@ import replacePlaceholders from './utils/replace-placeholders';
 import './styles/starter-page-templates-editor.scss';
 import TemplateSelectorControl from './components/template-selector-control';
 import { trackDismiss, trackSelection, trackView, initializeWithIdentity } from './utils/tracking';
+import ensureAssets from './utils/ensure-assets';
 
 class PageTemplateModal extends Component {
 	state = {
 		isLoading: false,
+		selectedTemplate: null,
+		error: null,
 	};
 
 	constructor( props ) {
@@ -36,9 +39,9 @@ class PageTemplateModal extends Component {
 	}
 
 	selectTemplate = newTemplate => {
-		this.setState( { isOpen: false } );
 		trackSelection( this.props.segment.id, this.props.vertical.id, newTemplate );
 
+		const { siteInformation } = this.props;
 		const template = this.props.templates[ newTemplate ];
 		this.props.saveTemplateChoice( template );
 
@@ -47,13 +50,26 @@ class PageTemplateModal extends Component {
 			return;
 		}
 
-		const processedTemplate = {
-			...template,
-			title: replacePlaceholders( template.title, this.props.siteInformation ),
-			content: replacePlaceholders( template.content, this.props.siteInformation ),
-		};
+		const templateTitle = replacePlaceholders( template.title, siteInformation );
 
-		this.props.insertTemplate( processedTemplate );
+		this.setState( {
+			error: null,
+			isLoading: true,
+			selectTemplateTitle: template,
+		} );
+
+		const blocks = parseBlocks( replacePlaceholders( template.content, siteInformation ) );
+		ensureAssets( blocks )
+			.then( blocksWithAssets => {
+				this.props.insertTemplate( templateTitle, blocksWithAssets );
+				setTimeout( () => this.setState( { isOpen: false } ), 300 );
+			} )
+			.catch( error => {
+				this.setState( {
+					isLoading: false,
+					error,
+				} );
+			} );
 	};
 
 	closeModal = () => {
@@ -75,18 +91,22 @@ class PageTemplateModal extends Component {
 			>
 				<div className="page-template-modal__inner">
 					<form className="page-template-modal__form">
-						<fieldset className="page-template-modal__list">
-							<TemplateSelectorControl
-								label={ __( 'Template', 'full-site-editing' ) }
-								templates={ map( this.props.templates, template => ( {
-									label: template.title,
-									value: template.slug,
-									preview: template.preview,
-									previewAlt: template.description,
-								} ) ) }
-								onClick={ newTemplate => this.selectTemplate( newTemplate ) }
-							/>
-						</fieldset>
+						{ this.state.isLoading ? (
+							<div className="page-template-modal__loading">Loading…</div>
+						) : (
+							<fieldset className="page-template-modal__list">
+								<TemplateSelectorControl
+									label={ __( 'Template', 'full-site-editing' ) }
+									templates={ map( this.props.templates, template => ( {
+										label: template.title,
+										value: template.slug,
+										preview: template.preview,
+										previewAlt: template.description,
+									} ) ) }
+									onClick={ newTemplate => this.selectTemplate( newTemplate ) }
+								/>
+							</fieldset>
+						) }
 					</form>
 				</div>
 			</Modal>
@@ -117,15 +137,14 @@ const PageTemplatesPlugin = compose(
 					},
 				} );
 			},
-			insertTemplate: template => {
+			insertTemplate: ( title, blocks ) => {
 				// Set post title.
 				editorDispatcher.editPost( {
-					title: template.title,
+					title: title,
 				} );
 
 				// Insert blocks.
 				const postContentBlock = ownProps.postContentBlock;
-				const blocks = parseBlocks( template.content );
 				editorDispatcher.insertBlocks(
 					blocks,
 					0,
