@@ -488,14 +488,14 @@ export class Checkout extends React.Component {
 
 			// Handle the redirect path after a purchase of GSuite
 			// The onboarding checklist currently supports the blog type only.
-			if ( hasGoogleAppsInCart && domainReceiptId && 'store' !== siteDesignType ) {
-				analytics.tracks.recordEvent( 'calypso_checklist_assign', {
-					site: selectedSiteSlug,
-					plan: 'paid',
-				} );
+			// if ( hasGoogleAppsInCart && domainReceiptId && 'store' !== siteDesignType ) {
+			// 	analytics.tracks.recordEvent( 'calypso_checklist_assign', {
+			// 		site: selectedSiteSlug,
+			// 		plan: 'paid',
+			// 	} );
 
-				return `${ signupDestination }?d=gsuite`;
-			}
+			// 	return `${ signupDestination }?d=gsuite`;
+			// }
 
 			// Maybe show either the G Suite or Concierge Session upsell pages
 			if (
