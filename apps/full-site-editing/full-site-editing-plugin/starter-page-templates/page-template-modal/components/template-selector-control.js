@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isEmpty } from 'lodash';
+import { isEmpty, isArray, noop } from 'lodash';
 import classnames from 'classnames';
 
 /**
@@ -10,18 +10,22 @@ import classnames from 'classnames';
 import { withInstanceId } from '@wordpress/compose';
 import { BaseControl } from '@wordpress/components';
 
-function TemplateSelectorControl( {
+export const TemplateSelectorControl = function( {
+	templates = [],
+	instanceId,
 	label,
+	onClick = noop,
 	className,
 	help,
-	instanceId,
-	onClick,
-	templates = [],
-} ) {
+} = {} ) {
 	const id = `template-selector-control-${ instanceId }`;
 	const handleButtonClick = event => onClick( event.target.value );
 
-	if ( isEmpty( templates ) ) {
+	if (
+		isEmpty( label ) ||
+		isEmpty( instanceId ) ||
+		( isEmpty( templates ) || ! isArray( templates ) )
+	) {
 		return null;
 	}
 
@@ -59,6 +63,6 @@ function TemplateSelectorControl( {
 			</ul>
 		</BaseControl>
 	);
-}
+};
 
 export default withInstanceId( TemplateSelectorControl );
