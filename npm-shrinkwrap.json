@@ -3261,6 +3261,11 @@
 				"@xtuc/long": "4.2.2"
 			}
 		},
+		"@webcomponents/url": {
+			"version": "0.7.3",
+			"resolved": "https://registry.npmjs.org/@webcomponents/url/-/url-0.7.3.tgz",
+			"integrity": "sha512-lGyV8yEbVGiQHr7MT+Xi04piZ5b80dj5HaAiL2KFuEHxi6w0l/zQ9hUJffBhg/0ZaQ2IikIp0LDxx4QqJkKfIQ=="
+		},
 		"@wordpress/a11y": {
 			"version": "2.5.0",
 			"resolved": "https://registry.npmjs.org/@wordpress/a11y/-/a11y-2.5.0.tgz",
