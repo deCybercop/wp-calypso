@@ -397,7 +397,6 @@ export class Checkout extends React.Component {
 			previousRoute,
 			transaction: { step: { data: stepResult = null } = {} } = {},
 		} = this.props;
-		const domainReceiptId = get( getGoogleApps( cart ), '[0].extra.receipt_for_domain', 0 );
 
 		const adminUrl = get( selectedSite, [ 'options', 'admin_url' ] );
 
@@ -483,19 +482,7 @@ export class Checkout extends React.Component {
 		}
 
 		if ( this.props.isNewlyCreatedSite && stepResult && isEmpty( stepResult.failed_purchases ) ) {
-			const siteDesignType = get( selectedSite, 'options.design_type' );
 			const hasGoogleAppsInCart = hasGoogleApps( cart );
-
-			// Handle the redirect path after a purchase of GSuite
-			// The onboarding checklist currently supports the blog type only.
-			// if ( hasGoogleAppsInCart && domainReceiptId && 'store' !== siteDesignType ) {
-			// 	analytics.tracks.recordEvent( 'calypso_checklist_assign', {
-			// 		site: selectedSiteSlug,
-			// 		plan: 'paid',
-			// 	} );
-
-			// 	return `${ signupDestination }?d=gsuite`;
-			// }
 
 			// Maybe show either the G Suite or Concierge Session upsell pages
 			if (
@@ -540,6 +527,10 @@ export class Checkout extends React.Component {
 
 		if ( hasConciergeSession( cart ) ) {
 			displayModeParam = 'd=concierge';
+		}
+
+		if ( hasGoogleApps( cart ) ) {
+			displayModeParam = 'd=gsuite';
 		}
 
 		const queryParam = displayModeParam ? `?${ displayModeParam }` : '';

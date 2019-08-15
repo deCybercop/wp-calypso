@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import { isEmpty } from 'lodash';
+import { isEmpty, get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -16,6 +16,8 @@ import {
 	hasPlan,
 	hasConciergeSession,
 	hasEcommercePlan,
+	getGoogleApps,
+	hasGoogleApps,
 } from 'lib/cart-values/cart-items';
 import isEligibleForDotcomChecklist from './is-eligible-for-dotcom-checklist';
 import { retrieveSignupDestination } from 'signup/utils';
@@ -35,6 +37,14 @@ export default function isEligibleForSignupDestination( state, siteId, cart ) {
 			( ! hasPlan( cart ) && ! hasConciergeSession( cart ) ) ||
 			hasEcommercePlan( cart )
 		) {
+			return false;
+		}
+	}
+
+	if ( hasGoogleApps( cart ) ) {
+		const domainReceiptId = get( getGoogleApps( cart ), '[0].extra.receipt_for_domain', 0 );
+
+		if ( ! domainReceiptId ) {
 			return false;
 		}
 	}
