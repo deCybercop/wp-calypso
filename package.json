@@ -42,6 +42,7 @@
 		"@babel/cli": "7.5.5",
 		"@babel/polyfill": "7.4.4",
 		"@babel/runtime": "7.5.5",
+		"@ungap/url-search-params": "0.1.2",
 		"@webcomponents/url": "0.7.3",
 		"@wordpress/blocks": "6.0.7",
 		"@wordpress/components": "7.0.8",
