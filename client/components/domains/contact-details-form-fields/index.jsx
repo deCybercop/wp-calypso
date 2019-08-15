@@ -477,6 +477,8 @@ export class ContactDetailsFormFields extends Component {
 		const { translate, needsFax, hasCountryStates, labelTexts } = this.props;
 		const countryCode = this.getCountryCode();
 		const usePlacesApi = abtest( 'placesApiInCheckout' ) === 'placesApi';
+		const hasAddress = ! isEmpty( get( this.state.form, 'address1.value', '' ) );
+		const showAddressFields = ! usePlacesApi || this.state.locationSelected || hasAddress;
 
 		return (
 			<div className="contact-details-form-fields__contact-details">
@@ -518,7 +520,7 @@ export class ContactDetailsFormFields extends Component {
 				) }
 
 				<div className="contact-details-form-fields__row">
-					{ ( ! usePlacesApi || this.state.locationSelected ) &&
+					{ showAddressFields &&
 						this.createField(
 							'country-code',
 							CountrySelect,
@@ -530,7 +532,7 @@ export class ContactDetailsFormFields extends Component {
 						) }
 				</div>
 
-				{ ( ! usePlacesApi || this.state.locationSelected ) && countryCode && (
+				{ showAddressFields && countryCode && (
 					<RegionAddressFieldsets
 						getFieldProps={ this.getFieldProps }
 						countryCode={ countryCode }
