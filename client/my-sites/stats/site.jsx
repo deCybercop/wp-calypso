@@ -1,5 +1,3 @@
-/** @format */
-
 /**
  * External dependencies
  */
@@ -13,7 +11,6 @@ import { find } from 'lodash';
 /**
  * Internal dependencies
  */
-
 import DocumentHead from 'components/data/document-head';
 import StatsPeriodNavigation from './stats-period-navigation';
 import Main from 'components/main';
@@ -29,7 +26,6 @@ import PageViewTracker from 'lib/analytics/page-view-tracker';
 import StatsBanners from './stats-banners';
 import StickyPanel from 'components/sticky-panel';
 import JetpackColophon from 'components/jetpack-colophon';
-import config from 'config';
 import { getSelectedSiteId, getSelectedSiteSlug } from 'state/ui/selectors';
 import { isJetpackSite, getSitePlanSlug } from 'state/sites/selectors';
 import { recordGoogleEvent } from 'state/analytics/actions';
@@ -147,19 +143,17 @@ class StatsSite extends Component {
 				/>
 			);
 
-			if ( config.isEnabled( 'manage/stats/file-downloads' ) ) {
-				fileDownloadList = (
-					<StatsModule
-						path="filedownloads"
-						moduleStrings={ moduleStrings.filedownloads }
-						period={ this.props.period }
-						query={ query }
-						statType="statsFileDownloads"
-						showSummaryLink
-						useShortLabel={ true }
-					/>
-				);
-			}
+			fileDownloadList = (
+				<StatsModule
+					path="filedownloads"
+					moduleStrings={ moduleStrings.filedownloads }
+					period={ this.props.period }
+					query={ query }
+					statType="statsFileDownloads"
+					showSummaryLink
+					useShortLabel={ true }
+				/>
+			);
 		}
 
 		return (
